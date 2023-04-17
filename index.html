@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<head>
+    <title>Mausam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+
+    <script src="https://unpkg.com/three"></script>
+    <script src="https://unpkg.com/topojson-client"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script src="https://unpkg.com/d3"></script>
+    <script src="./data/country-codes.js"></script>
+</head>
+<body>
+    <h1 class="title"><center>Mausam</center></h1>
+    <div id="earth"></div>
+    <script>
+        const world = Globe()(document.getElementById("earth"))
+            .showGlobe(true)
+            .showAtmosphere(true)
+            .backgroundImageUrl("//unpkg.com/three-globe/example/img/night-sky.png")
+            .globeImageUrl("//unpkg.com/three-globe/example/img/earth-night.jpg");
+
+        const colorScale = d3.scaleSequentialSqrt(d3.interpolateYlOrRd);
+
+        (async function () {
+            response = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
+            landTopo = await response.json();
+
+            response = await fetch("./data/weather-yc.json");
+            weather = await response.json();
+
+            year = weather["2022"];
+
+            allvals = [];
+            for (y in year) {
+                allvals.push(year[y]);
+            }
+
+            max = Math.max(...allvals);
+
+            colorScale.domain([0, max]);
+
+            const getVal = (feat) => {
+                var id = feat.id;
+
+                var country = COUNTRY_CODES.filter((c) => c.numeric == id);
+
+                if (country.length) {
+                    country = country[0];
+                    var val = year[country.alpha2];
+                    return val || 0;
+                }
+
+                return 0;
+            };
+
+            world
+                .polygonsData(topojson.feature(landTopo, landTopo.objects.countries).features)
+                .polygonCapColor((feat) => {
+                    var val = getVal(feat);
+                    var clr = colorScale(val);
+                    return clr;
+                })
+                .polygonSideColor(() => "rgba(0, 100, 0, 0.15)")
+                .polygonStrokeColor(() => "#111");
+        })();
+    </script>
+</body>
