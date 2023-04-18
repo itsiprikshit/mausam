@@ -18,6 +18,7 @@ body {
     position: absolute;
     left: calc(50% - 58.5px);
     z-index: +1;
+    padding-top: 10px;
 }
 
 #options {

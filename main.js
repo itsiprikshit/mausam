@@ -1,7 +1,9 @@
 var dataObj = {
     weather: {
         tavg: {},
-        prcp: {}
+        prcp: {},
+        snow: {},
+        awnd: {}
     },
     landTopo: {},
     world: {}
@@ -55,6 +57,12 @@ const updateGlobe = (datatype, selyear) => {
     response = await fetch("./data/weather-yc-prcp.json");
     dataObj.weather.prcp = await response.json();
 
+    response = await fetch("./data/weather-yc-snow.json");
+    dataObj.weather.snow = await response.json();
+
+    response = await fetch("./data/weather-yc-wind.json");
+    dataObj.weather.awnd = await response.json();
+
     var selectedYear = $("#curr-year").data("year");
     var selectedDataType = $("#data-type select").val();
 
@@ -65,7 +73,7 @@ const updateGlobe = (datatype, selyear) => {
         .globeImageUrl("./images/earth-night.jpeg")
         .onPolygonHover((hoverD) => {
             dataObj.world.polygonAltitude((d) => {
-                var val = d === hoverD ? 0.12 : 0.01;
+                var val = d === hoverD ? 0.06 : 0.01;
                 return val;
             });
         })
