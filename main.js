@@ -1,8 +1,12 @@
 var dataObj = {
-    weather: {},
+    weather: {
+        tavg: {},
+        prcp: {}
+    },
     landTopo: {},
     world: {}
 };
+
 const getVal = (feat, yeardata) => {
     var id = feat.id;
 
@@ -17,8 +21,8 @@ const getVal = (feat, yeardata) => {
     return 0;
 };
 
-const updateGlobe = (selectedyear) => {
-    var yeardata = dataObj.weather[selectedyear];
+const updateGlobe = (datatype, selyear) => {
+    var yeardata = dataObj.weather[datatype][selyear];
 
     var allvals = [];
     for (y in yeardata) {
@@ -45,16 +49,37 @@ const updateGlobe = (selectedyear) => {
     var response = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
     dataObj.landTopo = await response.json();
 
-    response = await fetch("./data/weather-yc.json");
-    dataObj.weather = await response.json();
+    response = await fetch("./data/weather-yc-tavg.json");
+    dataObj.weather.tavg = await response.json();
 
-    selectedyear = $("#curr-year").data("year");
+    response = await fetch("./data/weather-yc-prcp.json");
+    dataObj.weather.prcp = await response.json();
 
-    dataObj.world = Globe()($("#earth")[0]).showGlobe(true).showAtmosphere(true).backgroundImageUrl("./images/night-sky.png").globeImageUrl("./images/earth-night.jpeg");
+    var selectedYear = $("#curr-year").data("year");
+    var selectedDataType = $("#data-type select").val();
 
-    updateGlobe(selectedyear);
+    dataObj.world = Globe()($("#earth")[0])
+        .showGlobe(true)
+        .showAtmosphere(true)
+        .backgroundImageUrl("./images/night-sky.png")
+        .globeImageUrl("./images/earth-night.jpeg")
+        .onPolygonHover((hoverD) => {
+            dataObj.world.polygonAltitude((d) => {
+                var val = d === hoverD ? 0.12 : 0.01;
+                return val;
+            });
+        })
+        .polygonsTransitionDuration(300);
+
+    updateGlobe(selectedDataType, selectedYear);
 
     $("#earth").on("year-change", function (e, year) {
-        updateGlobe(year);
+        var selectedDataType = $("#data-type select").val();
+        updateGlobe(selectedDataType, year);
+    });
+
+    $("#earth").on("data-type-change", function (e, type) {
+        var year = $("#curr-year").attr("data-year");
+        updateGlobe(type, year);
     });
 })();

@@ -38,4 +38,9 @@
 
         $("#earth").trigger("year-change", endYear);
     });
+
+    $("#data-type select").on("change", function () {
+        var selected = $(this).val();
+        $("#earth").trigger("data-type-change", selected);
+    });
 })();
