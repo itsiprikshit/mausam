@@ -51,17 +51,12 @@ const updateGlobe = (datatype, selyear) => {
     var response = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
     dataObj.landTopo = await response.json();
 
-    response = await fetch("./data/weather-yc-tavg.json");
-    dataObj.weather.tavg = await response.json();
+    var responses = await Promise.all([fetch("./data/weather-yc-tavg.json"), fetch("./data/weather-yc-prcp.json"), fetch("./data/weather-yc-snow.json"), fetch("./data/weather-yc-wind.json")]);
 
-    response = await fetch("./data/weather-yc-prcp.json");
-    dataObj.weather.prcp = await response.json();
-
-    response = await fetch("./data/weather-yc-snow.json");
-    dataObj.weather.snow = await response.json();
-
-    response = await fetch("./data/weather-yc-wind.json");
-    dataObj.weather.awnd = await response.json();
+    dataObj.weather.tavg = await responses[0].json();
+    dataObj.weather.prcp = await responses[1].json();
+    dataObj.weather.snow = await responses[2].json();
+    dataObj.weather.awnd = await responses[3].json();
 
     var selectedYear = $("#curr-year").data("year");
     var selectedDataType = $("#data-type select").val();
