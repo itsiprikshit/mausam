@@ -46,3 +46,9 @@ body {
 #time .end {
     cursor: pointer;
 }
+
+@media only screen and (max-width: 700px) {
+    #options {
+        bottom: 0;
+    }
+}
